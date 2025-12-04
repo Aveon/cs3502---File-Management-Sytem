@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="MainView">
+
+    <!-- Top toolbar -->
+    <top>
+        <ToolBar>
+            <Button text="Refresh" onAction="#onList"/>
+            <Button text="Create File" onAction="#onCreateFile"/>
+            <Button text="Create directory" onAction="#onCreateDirectory"/>
+            <Button text="Read File" onAction="#onReadFile"/>
+            <Button text="Update File" onAction="#onUpdateFile"/>
+            <Button text="Delete" onAction="#onDeleteFile"/>
+            <Button text="Rename" onAction="#onRenameFile"/>
+            <Button text="Navigate" onAction="#onNavigateFile"/>
+        </ToolBar>
+    </top>
+
+    <!-- Center area: split between file list and file content -->
+    <center>
+        <SplitPane>
+            <ListView fx:id="fileList" prefWidth="250"/>
+            <TextArea fx:id="fileContent"/>
+        </SplitPane>
+    </center>
+
+    <!-- Bottom: status bar -->
+    <!-- Status bar -->
+    <bottom>
+        <Label fx:id="statusBar" text="Ready">
+            <padding>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </padding>
+        </Label>
+    </bottom>
+</BorderPane>
+
