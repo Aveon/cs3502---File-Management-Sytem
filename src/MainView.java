@@ -15,18 +15,21 @@ public class MainView
 
     private FileController controller;
 
+    // Initializes controller and populates file list when GUI is loaded
     protected void setFileController(FileController controller)
     {
         this.controller = controller;
         refreshFileList();
     }
 
+    // Refreshes the displayed directory list
     @FXML
     private void onList()
     {
         refreshFileList();
     }
 
+    // Creates new file in current directory
     @FXML
     private void onCreateFile()
     {
@@ -41,27 +44,21 @@ public class MainView
             {
                 controller.createFile(name, "");
                 refreshFileList();
-
-                Path newFile = controller.getCurrentDirectory().resolve(name);
-                if (Files.exists(newFile))
-                {
-                    setStatus("File created: " + name);
-                    showAlert(Alert.AlertType.INFORMATION, "File Created", "File created successfully: " + name);
-                }
-                else
-                {
-                    setStatus("Failed to create: " + name);
-                    showAlert(Alert.AlertType.ERROR, "Create Failed", "File could not be created: " + name);
-                }
+                setStatus("File created: " + name);
+                showAlert(Alert.AlertType.INFORMATION, "File Created",
+                        "File created successfully: " + name);
             }
             catch (Exception e)
             {
                 ErrorManager.handle(e, "creating file");
-                setStatus("Error creating: " + e.getMessage());
+                setStatus("Error creating file: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "File Creation Failed",
+                        "Failed to create file: " + e.getMessage());
             }
         });
     }
 
+    // Creates new file in current directory
     @FXML
     private void onCreateDirectory()
     {
@@ -77,17 +74,20 @@ public class MainView
                 controller.createDirectory(name);
                 refreshFileList();
                 setStatus("Directory created: " + name);
-                showAlert(Alert.AlertType.INFORMATION, "Directory Created", "Directory created successfully: " + name);
+                showAlert(Alert.AlertType.INFORMATION, "Directory Created",
+                        "Directory created successfully: " + name);
             }
             catch (Exception e)
             {
                 ErrorManager.handle(e, "creating directory");
                 setStatus("Error creating directory: " + e.getMessage());
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to create directory:\n" + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Directory Creation Failed",
+                        "Failed to create directory: " + e.getMessage());
             }
         });
     }
 
+    // Reads/displays content of the selected file in the text area
     @FXML
     private void onReadFile()
     {
@@ -107,10 +107,13 @@ public class MainView
         catch (Exception e)
         {
             ErrorManager.handle(e, "reading file");
-            setStatus("Error reading: " + selected);
+            setStatus("Error reading file: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Read Failed",
+                    "Could not read file: " + selected + "\n" + e.getMessage());
         }
     }
 
+    // Saves changes made to file's content
     @FXML
     private void onUpdateFile()
     {
@@ -126,28 +129,29 @@ public class MainView
 
         try
         {
-            controller.updateFile(selected, content);
-
             if (!Files.isWritable(path))
             {
-                setStatus("Failed to update (read-only): " + selected);
-                showAlert(Alert.AlertType.ERROR, "Update Failed",
-                        "Could not update file: " + selected + "\nThe file is read-only or access is denied.");
+                showAlert(Alert.AlertType.ERROR, "Permission Denied",
+                        "Cannot write to file: " + selected + " (read-only or restricted access).");
+                setStatus("Update failed: file not writable.");
+                return;
             }
-            else
-            {
-                setStatus("File updated: " + selected);
-                showAlert(Alert.AlertType.INFORMATION, "File Updated",
-                        selected + " was updated successfully!");
-            }
+
+            controller.updateFile(selected, content);
+            setStatus("File updated: " + selected);
+            showAlert(Alert.AlertType.INFORMATION, "File Updated",
+                    selected + " was updated successfully!");
         }
         catch (Exception e)
         {
             ErrorManager.handle(e, "updating file");
-            setStatus("Error updating: " + e.getMessage());
+            setStatus("Error updating file: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Update Failed",
+                    "Failed to update file: " + e.getMessage());
         }
     }
 
+    // Deletes selected file/directory after user confirmation
     @FXML
     private void onDeleteFile()
     {
@@ -171,30 +175,22 @@ public class MainView
                 {
                     controller.delete(selected);
                     refreshFileList();
-
-                    Path deletedPath = controller.getCurrentDirectory().resolve(selected);
-                    if (Files.exists(deletedPath))
-                    {
-                        setStatus("Failed to delete: " + selected);
-                        showAlert(Alert.AlertType.ERROR, "Delete Failed",
-                                "Could not delete: " + selected + "\nCheck file permissions.");
-                    }
-                    else
-                    {
-                        setStatus("Deleted: " + selected);
-                        showAlert(Alert.AlertType.INFORMATION, "Delete Successful",
-                                selected + " was deleted successfully.");
-                    }
+                    setStatus("Deleted: " + selected);
+                    showAlert(Alert.AlertType.INFORMATION, "Delete Successful",
+                            selected + " was deleted successfully.");
                 }
                 catch (Exception e)
                 {
                     ErrorManager.handle(e, "deleting file");
-                    setStatus("Error deleting: " + e.getMessage());
+                    setStatus("Error deleting file: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Delete Failed",
+                            "Failed to delete file: " + e.getMessage());
                 }
             }
         });
     }
 
+    // Renames selected file/directory
     @FXML
     private void onRenameFile()
     {
@@ -208,41 +204,42 @@ public class MainView
         TextInputDialog dialog = new TextInputDialog(selected);
         dialog.setTitle("Rename File");
         dialog.setHeaderText("Enter a new name:");
+
         dialog.showAndWait().ifPresent(newName ->
         {
+            if (newName.equals(selected))
+            {
+                showAlert(Alert.AlertType.WARNING, "Invalid Rename",
+                        "The new name is the same as the current name.");
+                return;
+            }
+
             try
             {
                 controller.rename(selected, newName);
                 refreshFileList();
-
-                Path newPath = controller.getCurrentDirectory().resolve(newName);
-                if (Files.exists(newPath))
-                {
-                    setStatus("Renamed: " + selected + " → " + newName);
-                    showAlert(Alert.AlertType.INFORMATION, "Rename Successful",
-                            "File renamed successfully to: " + newName);
-                }
-                else
-                {
-                    setStatus("Failed to rename: " + selected);
-                    showAlert(Alert.AlertType.ERROR, "Rename Failed",
-                            "Could not rename file: " + selected + "\nFile may already exist or permission denied.");
-                }
+                setStatus("Renamed: " + selected + " → " + newName);
+                showAlert(Alert.AlertType.INFORMATION, "Rename Successful",
+                        "File renamed successfully to: " + newName);
             }
             catch (Exception e)
             {
-                ErrorManager.handle(e, "renaming file/directory");
-                setStatus("Error renaming: " + e.getMessage());
+                ErrorManager.handle(e, "renaming file");
+                setStatus("Error renaming file: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Rename Failed",
+                        "Failed to rename file: " + e.getMessage());
             }
         });
     }
 
+    // Changes current working directory
     @FXML
     private void onNavigateFile()
     {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Navigate");
         dialog.setHeaderText("Enter folder name:");
+
         dialog.showAndWait().ifPresent(folder ->
         {
             try
@@ -254,7 +251,9 @@ public class MainView
             catch (Exception e)
             {
                 ErrorManager.handle(e, "navigating to directory");
-                setStatus("Error navigating: " + folder);
+                setStatus("Error navigating: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Navigation Failed",
+                        "Failed to navigate: " + e.getMessage());
             }
         });
     }
@@ -265,7 +264,7 @@ public class MainView
         try
         {
             fileList.getItems().clear();
-            List<FileItem> items = controller.fileManager.listDirectory(controller.getCurrentDirectory());
+            List<FileItem> items = controller.listCurrentDirectoryContents();
             for (FileItem item : items)
             {
                 fileList.getItems().add(item.getName());
@@ -274,6 +273,8 @@ public class MainView
         catch (Exception e)
         {
             setStatus("Error refreshing list: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Refresh Failed",
+                    "Could not refresh file list: " + e.getMessage());
         }
     }
 
