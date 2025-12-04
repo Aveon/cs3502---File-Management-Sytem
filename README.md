@@ -25,7 +25,7 @@ A Java-based file management application with a graphical user interface (GUI) f
 
 ## Build and Run Instructions
 
-### **Option 1 — Run in IntelliJ IDEA**
+### **Run in IntelliJ IDEA**
 1. Open IntelliJ IDEA.
 2. Go to **File → Open...** and select this project folder.
 3. Configure your JavaFX SDK:
