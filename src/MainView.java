@@ -42,18 +42,41 @@ public class MainView
         {
             try
             {
+                Path newFile = controller.getCurrentDirectory().resolve(name);
+
+                // Check if it already exists before attempting creation
+                if (Files.exists(newFile))
+                {
+                    showAlert(Alert.AlertType.WARNING, "File Exists",
+                            "A file with that name already exists: " + name);
+                    setStatus("File already exists: " + name);
+                    return;
+                }
+
+                // Attempt to create file
                 controller.createFile(name, "");
-                refreshFileList();
-                setStatus("File created: " + name);
-                showAlert(Alert.AlertType.INFORMATION, "File Created",
-                        "File created successfully: " + name);
+
+                // Confirm it was actually created
+                if (Files.exists(newFile))
+                {
+                    refreshFileList();
+                    setStatus("File created: " + name);
+                    showAlert(Alert.AlertType.INFORMATION, "File Created",
+                            "File created successfully: " + name);
+                }
+                else
+                {
+                    setStatus("File creation failed: " + name);
+                    showAlert(Alert.AlertType.ERROR, "Create Failed",
+                            "The file could not be created: " + name);
+                }
             }
             catch (Exception e)
             {
                 ErrorManager.handle(e, "creating file");
                 setStatus("Error creating file: " + e.getMessage());
                 showAlert(Alert.AlertType.ERROR, "File Creation Failed",
-                        "Failed to create file: " + e.getMessage());
+                        "Error creating file:\n" + e.getMessage());
             }
         });
     }
@@ -71,21 +94,45 @@ public class MainView
         {
             try
             {
+                Path newDir = controller.getCurrentDirectory().resolve(name);
+
+                // Pre-check if it already exists
+                if (Files.exists(newDir))
+                {
+                    showAlert(Alert.AlertType.WARNING, "Directory Exists",
+                            "A directory with that name already exists: " + name);
+                    setStatus("Directory already exists: " + name);
+                    return;
+                }
+
+                // Try to create directory
                 controller.createDirectory(name);
-                refreshFileList();
-                setStatus("Directory created: " + name);
-                showAlert(Alert.AlertType.INFORMATION, "Directory Created",
-                        "Directory created successfully: " + name);
+
+                // Post-check: verify if directory was created
+                if (Files.isDirectory(newDir))
+                {
+                    refreshFileList();
+                    setStatus("Directory created: " + name);
+                    showAlert(Alert.AlertType.INFORMATION, "Directory Created",
+                            "Directory created successfully: " + name);
+                }
+                else
+                {
+                    setStatus("Directory creation failed: " + name);
+                    showAlert(Alert.AlertType.ERROR, "Create Failed",
+                            "The directory could not be created: " + name);
+                }
             }
             catch (Exception e)
             {
                 ErrorManager.handle(e, "creating directory");
                 setStatus("Error creating directory: " + e.getMessage());
                 showAlert(Alert.AlertType.ERROR, "Directory Creation Failed",
-                        "Failed to create directory: " + e.getMessage());
+                        "Error creating directory:\n" + e.getMessage());
             }
         });
     }
+
 
     // Reads/displays content of the selected file in the text area
     @FXML
