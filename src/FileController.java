@@ -221,4 +221,16 @@ public class FileController
     {
         return currentDirectory;
     }
+
+     /**
+     * Returns a list of files and directories in the current working directory.
+     *
+     * @return List of FileItem objects representing the current directory contents.
+     * @throws IOException if the directory cannot be accessed.
+     */
+    public List<FileItem> listCurrentDirectoryContents() throws IOException
+    {
+        return fileManager.listDirectory(currentDirectory);
+    }
 }
+
