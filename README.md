@@ -4,7 +4,7 @@ A Java-based file management application with a graphical user interface (GUI) f
 
 ---
 
-## 🧩 Features
+## Features
 - Create, read, update, and delete text files
 - Create and delete directories (including recursive delete)
 - Rename files and directories
@@ -15,7 +15,7 @@ A Java-based file management application with a graphical user interface (GUI) f
 
 ---
 
-## ⚙️ Technologies Used
+## Technologies Used
 - **Language/SDK:** OpenJDK 25
 - **Framework:** JavaFX 25.0.1
 - **Libraries:** Java NIO (for file operations)
@@ -23,7 +23,7 @@ A Java-based file management application with a graphical user interface (GUI) f
 
 ---
 
-## 🏗️ Build and Run Instructions
+## Build and Run Instructions
 
 ### **Option 1 — Run in IntelliJ IDEA**
 1. Open IntelliJ IDEA.
