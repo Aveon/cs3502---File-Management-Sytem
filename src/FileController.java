@@ -83,8 +83,10 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "creating file");
+            throw new RuntimeException(e); // tell MainView this failed
         }
     }
+
 
     /**
      * Creates new subdirectory in current directory.
@@ -102,8 +104,10 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "creating directory");
+            throw new RuntimeException(e); // rethrow
         }
     }
+
 
     /**
      * Reads contents of file.
@@ -141,8 +145,10 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "updating file");
+            throw new RuntimeException(e); // rethrow
         }
     }
+
 
     /**
      * Deletes file/directory.
@@ -160,14 +166,16 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "deleting file");
+            throw new RuntimeException(e); // rethrow
         }
     }
 
+
     /**
-     * Renames file/directory.
+     * Renames file or directory.
      *
-     * @param oldName : Current file/directory name.
-     * @param newName : New file/directory name.
+     * @param oldName Current file/directory name
+     * @param newName New file/directory name
      */
     public void rename(String oldName, String newName)
     {
@@ -181,6 +189,7 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "renaming file/directory");
+            throw new RuntimeException(e); // rethrow the error for MainView to handle
         }
     }
 
@@ -209,8 +218,10 @@ public class FileController
         catch (Exception e)
         {
             ErrorManager.handle(e, "navigating to file");
+            throw new RuntimeException(e);
         }
     }
+
 
     /**
      * Returns current working directory.
@@ -222,7 +233,7 @@ public class FileController
         return currentDirectory;
     }
 
-     /**
+    /**
      * Returns a list of files and directories in the current working directory.
      *
      * @return List of FileItem objects representing the current directory contents.
@@ -232,5 +243,5 @@ public class FileController
     {
         return fileManager.listDirectory(currentDirectory);
     }
-}
 
+}
